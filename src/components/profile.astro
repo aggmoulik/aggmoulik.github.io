@@ -10,6 +10,7 @@ import VerifiedIcon from "@/components/ui/icons/verified.astro";
 import XIcon from "@/components/ui/icons/x.astro";
 import GithubIcon from "@/components/ui/icons/github.astro";
 import LinkedinIcon from "@/components/ui/icons/linkedin.astro";
+import { SOCIAL_LINKS_URLS } from "@/lib/constants";
 ---
 
 <div class="screen-line-after relative flex items-center p-4 md:border-x">
@@ -63,18 +64,18 @@ import LinkedinIcon from "@/components/ui/icons/linkedin.astro";
       <Briefcase className="size-4" />
       I build software at
       <a
-        href="https://activepieces.com"
+        href="https://gripinvest.in"
         target="_blank"
         class="underline underline-offset-4"
       >
-        Activepieces
+        Grip
       </a>
     </span>
     <span class="flex items-center justify-start gap-2">
       <Briefcase className="size-4" />
       Take a look at my
       <a
-        href="https://drive.google.com/file/d/1c7-UIHy8GUvgj2XHuf7nfhUU4vpjRXSt/view?usp=sharing"
+        href={SOCIAL_LINKS_URLS.resume}
         target="_blank"
         class="underline underline-offset-4"
       >
@@ -86,7 +87,7 @@ import LinkedinIcon from "@/components/ui/icons/linkedin.astro";
       <XIcon className="size-4" />
       Follow me on
       <a
-        href="https://x.com/Louai_Dourov"
+        href={SOCIAL_LINKS_URLS.x}
         target="_blank"
         class="underline underline-offset-4"
       >
@@ -98,7 +99,7 @@ import LinkedinIcon from "@/components/ui/icons/linkedin.astro";
       <LinkedinIcon className="size-4" />
       Let's connect on
       <a
-        href="https://www.linkedin.com/in/louai-boumediene-018919262/"
+        href={SOCIAL_LINKS_URLS.linkedin}
         class="underline underline-offset-4"
         target="_blank"
       >
@@ -110,7 +111,7 @@ import LinkedinIcon from "@/components/ui/icons/linkedin.astro";
       <GithubIcon className="size-4" />
       Check out my repos on
       <a
-        href="https://github.com/Louai-Zokerburg"
+        href={SOCIAL_LINKS_URLS.github}
         class="underline underline-offset-4"
         target="_blank"
       >

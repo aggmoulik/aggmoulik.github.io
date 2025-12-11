@@ -1,26 +1,23 @@
 import {
+  AWS,
   BunJs,
+  Cypress,
   Docker,
   Figma,
-  Framer,
   Git,
-  MongoDB,
+  Jest,
   NextJs,
   NodeJs,
-  Python,
+  Playwright,
   React,
   ReactQuery,
   Redis,
   Redux,
   ShadcnUI,
+  Storybook,
   TailwindCSS,
   TypeScript,
-  Appwrite,
-  Astro
 } from "developer-icons";
-
-import HonoIcon from '@/components/ui/icons/hono.astro'
-import FastapiIcon from '@/components/ui/icons/fastapi.astro'
 
 
 export const TECH_STACK = [
@@ -29,11 +26,6 @@ export const TECH_STACK = [
     title: "TypeScript",
     href: "https://www.typescriptlang.org/",
     icon: TypeScript,
-  },
-  {
-    title: "Python",
-    href: "https://www.python.org/",
-    icon: Python,
   },
 
   // Frontend Technologies
@@ -48,9 +40,9 @@ export const TECH_STACK = [
     icon: NextJs,
   },
   {
-    title: "Astro.js",
-    href: "https://astro.build/",
-    icon: Astro,
+    title: "React Native",
+    href: "https://reactnative.dev/",
+    icon: React,
   },
   {
     title: "Tailwind CSS",
@@ -76,10 +68,33 @@ export const TECH_STACK = [
     href: "https://ui.shadcn.com/",
     icon: ShadcnUI,
   },
+
+  // Frontend Testing Frameworks
   {
-    title: "Motion",
-    href: "https://motion.dev/",
-    icon: Framer,
+    title: "Playwright",
+    href: "https://playwright.dev/",
+    icon: Playwright,
+  },
+  {
+    title: "Cypress",
+    href: "https://www.cypress.io/",
+    icon: Cypress,
+  },
+  {
+    title: "Jest",
+    href: "https://jestjs.io/",
+    icon: Jest,
+  },
+  {
+    title: "Storybook",
+    href: "https://storybook.js.org/",
+    icon: Storybook,
+  },
+  // Cloud Platforms
+  {
+    title: "AWS",
+    href: "https://aws.amazon.com/",
+    icon: AWS,
   },
 
 
@@ -88,33 +103,6 @@ export const TECH_STACK = [
     title: "Node.js",
     href: "https://nodejs.org/",
     icon: NodeJs,
-  },
-  {
-    title: "Bun",
-    href: "https://bun.sh/",
-    icon: BunJs,
-  },
-  {
-    title: "FastAPI",
-    href: "https://fastapi.tiangolo.com/",
-    icon: FastapiIcon
-  },
-  {
-    title: "Honojs",
-    href: "https://hono.dev/",
-    icon: HonoIcon
-  },
-  {
-    title: "Appwrite",
-    href: "https://appwrite.io",
-    icon: Appwrite
-  },
-
-  // Databases & Caching
-  {
-    title: "MongoDB",
-    href: "https://www.mongodb.com/",
-    icon: MongoDB,
   },
   {
     title: "Redis",

@@ -1,9 +1,9 @@
 export const SITE = {
   pageType: 'website',
-  author: "Louai Boumediene",
-  profile: "https://louai.site",
+  author: "Moulik Aggarwal",
+  profile: "https://aggmoulik.github.io",
   desc: "My digital space, projects, insights, and thoughts on software engineering.",
-  title: "Louai Boumediene",
-  ogImage: '/og-image.jpg',
+  title: "Moulik Aggarwal",
+  // ogImage: '/og-image.jpg',
   postPerPage: 6,
 } as const;

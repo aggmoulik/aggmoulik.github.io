@@ -2,6 +2,13 @@ import LinkedinIcon from '@/components/ui/icons/linkedin.astro'
 import XIcon from '@/components/ui/icons/x.astro'
 import GithubIcon from '@/components/ui/icons/github.astro'
 
+export const SOCIAL_LINKS_URLS = {
+  github: "https://github.com/aggmoulik",
+  linkedin: "https://www.linkedin.com/in/agg-moulik/",
+  x: "https://x.com/aggmoulik",
+  resume: "https://drive.google.com/file/d/1c7-UIHy8GUvgj2XHuf7nfhUU4vpjRXSt/view?usp=sharing",
+} as const;
+
 export const NAV_LINKS = [
   {
     label: "Home",
@@ -11,26 +18,26 @@ export const NAV_LINKS = [
     label: "Articles",
     href: "/articles",
   },
-  {
-    label: "Projects",
-    href: "/projects",
-  },
+  // {
+  //   label: "Projects",
+  //   href: "/projects",
+  // },
 ] as const;
 
 export const SOCIAL_LINKS = [
   {
     name: 'Github',
     icon: GithubIcon,
-    url: "https://github.com/Louai-Zokerburg",
+    url: SOCIAL_LINKS_URLS.github,
   },
   {
     name: 'Linkedin',
     icon: LinkedinIcon,
-    url: "https://www.linkedin.com/in/louai-boumediene-018919262/",
+    url: SOCIAL_LINKS_URLS.linkedin,
   },
   {
     name: 'X',
     icon: XIcon,
-    url: "https://x.com/Louai_Dourov",
+    url: SOCIAL_LINKS_URLS.x,
   },
 ];
