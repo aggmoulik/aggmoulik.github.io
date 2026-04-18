@@ -1,0 +1,71 @@
+---
+/**
+ * GitHub PR contributions widget — powered by github-embed-ui.
+ *
+ * Live mode: widget fetches data from the deployed Cloudflare Worker.
+ * Refresh = sync GitHub via the dashboard (writes to production Turso).
+ * No portfolio redeploy required.
+ *
+ * Fallback (static export) still lives under public/embeds/contributions/
+ * — swap this component back to data-src if the API is down.
+ *
+ * The widget renders inside Shadow DOM — fully isolated from this site's
+ * Tailwind / shadcn theme. No global CSS is mutated.
+ */
+
+import Box from "@/components/box/index.astro";
+import BoxHeader from "@/components/box/header.astro";
+import BoxTitle from "@/components/box/title.astro";
+import BoxContent from "@/components/box/content.astro";
+
+const widgetSrc = "https://github-embed-ui.qwertymoulik.workers.dev/widget.js";
+const widgetId = "d89745f5-4e6a-4b68-ac80-2c29b4c84376";
+---
+
+<Box>
+  <BoxHeader>
+    <BoxTitle>Open Source Contributions</BoxTitle>
+  </BoxHeader>
+  <BoxContent>
+    <div id="gh-contributions-embed" class="gh-embed-mount" transition:persist></div>
+    <!--
+      The widget auto-detects the host theme from <html class="dark">,
+      localStorage.theme, and prefers-color-scheme. No bridge script needed.
+
+      We mount on `astro:page-load` (fires on first load AND every ClientRouter
+      navigation) so the widget initializes whether the user lands here directly
+      or arrives via a client-side transition. The widget itself is idempotent —
+      a second mount attempt early-exits when the host already has a shadowRoot.
+    -->
+    <script
+      is:inline
+      define:vars={{ widgetSrc, widgetId }}
+    >
+      function mountContributionsWidget() {
+        const host = document.querySelector("#gh-contributions-embed");
+        if (!host || host.shadowRoot) return;
+
+        const prev = document.querySelector("script[data-geu-injected]");
+        if (prev) prev.remove();
+
+        const s = document.createElement("script");
+        s.async = true;
+        s.src = widgetSrc;
+        s.setAttribute("data-widget-id", widgetId);
+        s.setAttribute("data-mount", "#gh-contributions-embed");
+        s.setAttribute("data-geu-injected", "1");
+        document.head.appendChild(s);
+      }
+
+      mountContributionsWidget();
+      document.addEventListener("astro:page-load", mountContributionsWidget);
+    </script>
+  </BoxContent>
+</Box>
+
+<style>
+  /* Reserve layout space so the page doesn't shift when the widget mounts. */
+  .gh-embed-mount {
+    min-height: 320px;
+  }
+</style>
