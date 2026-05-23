@@ -1,0 +1,103 @@
+---
+name: open-embed-ui | Embeddable GitHub PR Widget
+type: core
+image: /og-images/projects/open-embed-ui.png
+sourceCode: https://github.com/aggmoulik/open-embed-ui
+preview: https://open-embed-ui.vercel.app/
+technologies:
+  - Next.js
+  - React
+  - Preact
+  - TypeScript
+  - Tailwind CSS
+  - shadcn/ui
+  - Drizzle ORM
+  - Turso
+  - better-auth
+  - Cloudflare Workers
+  - Astro
+  - Turborepo
+
+description: A single <script> tag drops a themeable, shadow-DOM-isolated widget of a developer's merged open-source PRs onto any site. ~18 KB gzipped, zero iframes, zero API keys. MIT-licensed. 🚀
+---
+
+# ![open-embed-ui](/og-images/projects/open-embed-ui.png)
+
+The *Open Source Contributions* card on the [front page of this site](/#contributions) is one `<script>` tag. That's the project.
+
+I wanted to show my merged PRs on this portfolio without redeploying every time something landed, without iframes carrying their own chrome, and without an OAuth dance just to render a card. Seven weeks of evenings later I had a hosted dashboard, a Cloudflare Worker embed API, a Preact + Shadow DOM widget under 18 KB gzipped, and a backlog of bugs I'd never have predicted from the top.
+
+## v1 was an iframe, and v1 was wrong
+
+The first version of this widget was a Next.js iframe. It worked. It was also bad: every embed loaded a full HTML page, dragged in its own Tailwind, and forced fixed `width`/`height` that broke any host trying to do dynamic layout. Themes required a reload. Hydration was its own circle of hell.
+
+I ripped it out on day two and rebuilt the embed as a Shadow DOM + Preact custom element bundled to a single IIFE. The first stable build came in at **9.6 KB gzipped** including Preact. Every other decision in this project descends from that one.
+
+## Preact, and the receipts
+
+The widget loads on every page view of every site that embeds it. React 19 was a non-starter the moment I measured:
+
+| | React 19 | Preact |
+|---|---|---|
+| Runtime size (gzipped) | ~45 KB | ~3 KB |
+| Total widget bundle | ~55 KB | ~10 KB |
+| API surface | — | ~99% React-compatible |
+| JSX attribute | `className` | `class` (native HTML) |
+
+The numbers ended the debate. But the cost of choosing Preact isn't free, and the cost shows up at boundaries you don't see in a benchmark:
+
+**What hurt:**
+
+- **`class` vs `className` in JSX.** Trivial in isolation. Annoying when you're context-switching between dashboard React code and widget Preact code inside the same monorepo, twenty times an hour.
+- **shadcn doesn't work in Preact.** The dashboard is shadcn-on-radix; the widget can't share a single component with it. The preview app in the monorepo had to keep its own hand-written Tailwind `@apply` styles for the same primitives. Two sources of truth for "what does a button look like in this brand," forever.
+- **Strict Mode double-mounts.** The dashboard runs React 19 in Strict Mode. When the widget's preview component mounted twice, `attachShadow` threw because the host element already had a shadow root. One-line fix — recreate the host div on each mount, clean it up on unmount — but the failure mode is silent in dev and loud in user reports.
+- **The preview modal had to be a parallel React implementation.** Hydration mismatches made it impossible to use the actual Preact widget inside the dashboard's React tree. There's now a second `WidgetRenderer` in pure React that mirrors the layouts — duplicated rendering code, kept in lockstep by hand. The maintenance tax is real.
+
+**What I'd still do again:** all of it. Carrying a parallel React renderer for the dashboard preview is a fraction of the cost of asking visitors to your site to download 55 KB of someone else's framework before they see your face.
+
+## Shadow DOM is the easy part, until it isn't
+
+Three bugs that ate days I'll never get back:
+
+**Terser mangled the global.** The IIFE bundle exposed `GitHubEmbedWidget` as a named global. Default terser config minified it to `var t = function() {…}`. The embed script wasn't found, the widget never mounted, and nothing showed up in the console. Fix:
+
+```js
+terser({ mangle: { reserved: ['GitHubEmbedWidget'] } })
+```
+
+**`next/script` and SSR.** Mounting the widget loader via `next/script` in the dashboard's preview surface threw a hydration error every reload — the server rendered no script tag, the client added one, React panicked. The fix is the kind of code you don't put in a portfolio article: drop `next/script` entirely, manually `document.createElement('script')` inside a `useEffect`. Inelegant. Works.
+
+**Shadow DOM doesn't inherit host Tailwind.** I'd been writing layouts with `className="bg-card text-foreground …"`. Inside a Shadow DOM, the host page's Tailwind stylesheet doesn't apply — none of the classes rendered. The fix isn't "ship Tailwind inside the widget" (the JIT can't see inside a JS string, and shipping preflight is wasteful). The fix is `@apply` inside a single `widget.css` processed at build time and injected into the shadow root as a string. Utility-first authoring, classical CSS shipping.
+
+## Theming was harder than it looked
+
+The theming layer — five preset palettes (emerald, violet, rose, neutral, mono) plus per-token OKLCH overrides for background, foreground, card, border, brand, and muted — looked like a CSS-variables Tuesday. It took a week and three subtle bugs to land cleanly.
+
+- **Tailwind v4's `@theme inline` doesn't preserve your aliases.** The dashboard preview uses utility classes, which v4 resolves to the un-prefixed *source* variable at build time. My runtime's `--color-*` overrides were getting bypassed. Fix: emit both prefixed and unprefixed values as inline styles on the preview wrapper.
+- **Legacy widgets had sparse overrides.** Owners who'd configured a single color before themes existed rendered as "default green plus their one override" — visually broken. The fix wasn't a client refactor — it was server-side normalization in `getEmbedPayload`, merging preset + sparse overrides into a complete token map at the API boundary. Old data renders correctly without anyone re-saving anything.
+- **The mount-order race.** The widget's `<style data-geu-theme>` injection effect depended on `[data]`. But the `<div ref={rootRef}>` only mounts once `data` AND `resolvedLayout` are both set. By the time the ref attached, the effect was done firing. Took an embarrassing amount of staring at the screen to spot. One-character fix.
+
+## When owners try to hide your branding
+
+The widget renders a "powered by openembed/ui" footer at the bottom of every embed. About a week after shipping the theme picker, I realized owners with full per-token control could set the footer's foreground to `--color-background` and make it disappear. The footer is the project's distribution surface. It can't be defeatable.
+
+So the watermark now ignores user theming entirely:
+
+- Full-width white card, regardless of host theme
+- Hardcoded colors — no CSS variables touch it
+- `!important` on `display`, `color`, and `visibility`
+- Real landing logo (the `⌥` glyph in a black rounded square + the `openembed/ui` mono wordmark) instead of inline text
+
+It's the only place in the widget that defies the user's choices. Worth it.
+
+## Stack
+
+- **Dashboard** — Next.js (App Router, React 19), Tailwind v4, shadcn/ui, better-auth (GitHub OAuth), deployed on Vercel
+- **Widget** — Preact + hooks, Shadow DOM, Vite IIFE bundle, `@apply`'d Tailwind injected as a CSS string
+- **API** — Cloudflare Worker, per-widget origin allowlist checked on every request, hashed-IP rate limiting on the waitlist
+- **Data** — Drizzle ORM over Turso (libSQL/HTTP — no long-lived connections)
+- **Monorepo** — pnpm + Turborepo, with strict package boundaries so the widget never accidentally pulls in dashboard code
+
+## What's left
+
+The hosted version on `open-embed-ui.vercel.app` works today. The repo is MIT and accepts PRs. I'm still chipping at bundle size (current build: **18.01 KB** against a 25 KB CI budget), onboarding polish, and a couple of layouts that need a designer's eye more than a programmer's. The project documents its own decisions in `docs/features/NN-…/` and dated session logs, which has saved me from re-deriving the same Tailwind v4 trap twice.
