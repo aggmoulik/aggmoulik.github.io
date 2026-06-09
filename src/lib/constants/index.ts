@@ -6,8 +6,7 @@ export const SOCIAL_LINKS_URLS = {
   github: "https://github.com/aggmoulik",
   linkedin: "https://www.linkedin.com/in/agg-moulik/",
   x: "https://x.com/aggmoulik",
-  resume:
-    "https://drive.google.com/file/d/1c7-UIHy8GUvgj2XHuf7nfhUU4vpjRXSt/view?usp=sharing",
+  resume: "/resume.pdf",
 } as const;
 
 export const NAV_LINKS = [
